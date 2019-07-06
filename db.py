@@ -22,3 +22,8 @@ class TeeBotDB:
     def get_random_meme(self):
         self.Cursor.execute("select filename FROM memes ORDER BY RAND() LIMIT 1;")
         return self.Cursor.fetchall()
+
+    def get_meme_by_theme(self, theme):
+        self.Cursor.execute(f"select filename FROM memes WHERE theme = {theme} ORDER BY RAND() LIMIT 1;")
+        return self.Cursor.fetchall()
+
