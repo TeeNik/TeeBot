@@ -13,6 +13,7 @@ files_path = '/TeeBot/pics/'
 
 botDB = db.TeeBotDB()
 answer_reason = AnswerReason.NONE
+theme_list = botDB.get_themes_list()
 
 
 def get_updates_json(request):
@@ -29,12 +30,18 @@ def send_welcome(message):
 def send_meme(message):
     try:
         chat_id = message.chat.id
-        filename = botDB.get_random_meme()[0][0]
+
+        text = str(message.json['text'])
+        params = text.split(" ")
+        if len(params) > 1 and params[1] in theme_list:
+            filename = botDB.get_meme_by_theme(params[1])
+        else:
+            filename = botDB.get_random_meme()
         photo = open(f'{files_path}{filename}', 'rb')
         bot.send_photo(chat_id, photo)
-
-    except Exception:
-        bot.send_message(chat_id, "Эксепшон!!!!")
+    except Exception as e:
+        bot.send_message(chat_id, "Эксепшон!!!!\n")
+        bot.send_message(chat_id, e)
 
 
 @bot.message_handler(content_types=['photo'])
@@ -54,15 +61,13 @@ def handle_docs_photo(message):
         bot.send_message(chat_id, e)
 
 
-@bot.message_handler(commands=['category_meme'])
-def get_meme_by_theme(message):
-    answer_reason = AnswerReason.THEME
-    list = botDB.get_themes_list()
-    text = "Выберите номер темы:\n"
-    number = 1
-    for theme in list:
-        text += f'{number}: {theme}'
+@bot.message_handler(commands=['show_themes'])
+def handle_show_themes(message):
+    text = 'Темы мемов:\n'
+    for theme in theme_list:
+        text += f"{theme}\n"
     bot.send_message(message.chat.id, text)
+
 
 
 @bot.message_handler(func=lambda message: True)
