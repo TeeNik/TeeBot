@@ -24,7 +24,7 @@ def get_updates_json(request):
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    bot.send_message(message, HELP_TEXT)
+    bot.send_message(message.chat.id, HELP_TEXT)
 
 
 @bot.message_handler(commands=["meme"])
