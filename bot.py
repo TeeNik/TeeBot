@@ -1,7 +1,7 @@
 import requests
 import telebot
 
-token = "877998317:AAFNcXuKLX3EU2FQpMjsiko26KAyIXlBoyA";
+token = "";
 bot = telebot.TeleBot(token)
 
 updates_url = f"https://api.telegram.org/bot{token}/getUpdates"
@@ -26,6 +26,15 @@ def send_meme(message):
     photo = open('/TeeBot/pics/meme.jpg', 'rb')
     # chat_id = 1
     bot.send_photo(chat_id, photo)
+
+
+@bot.message_handler(content_types=['photo'])
+def handle_docs_photo(message):
+    try:
+        chat_id = message.chat.id;
+        file_info = bot.get_file(message.document.file_id)
+
+    ex
 
 
 @bot.message_handler(func=lambda message: True)
