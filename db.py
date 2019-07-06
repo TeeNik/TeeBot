@@ -1,4 +1,5 @@
 import mysql.connector
+import mysql.connector.cursor
 
 
 class TeeBotDB:
@@ -12,8 +13,12 @@ class TeeBotDB:
             passwd='33153315',
             database='TeeBotDB'
         )
-        self.Cursor = DB.Cursor()
+        self.Cursor = self.DB.cursor()
 
     def get_themes_list(self):
         self.Cursor.execute('select distinct theme from memes')
+        return self.Cursor.fetchall()
+
+    def get_random_meme(self):
+        self.Cursor.execute("select filename FROM memes ORDER BY RAND() LIMIT 1;")
         return self.Cursor.fetchall()
