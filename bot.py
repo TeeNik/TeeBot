@@ -3,6 +3,7 @@ import telebot
 import sys
 import db
 from answer_reason import AnswerReason
+from answer_reason import HELP_TEXT
 
 
 token = sys.argv[1];
@@ -23,7 +24,7 @@ def get_updates_json(request):
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    bot.reply_to(message, "Слышь, пидор, когда долг отдашь?")
+    bot.send_message(message, HELP_TEXT)
 
 
 @bot.message_handler(commands=["meme"])
@@ -67,7 +68,6 @@ def handle_show_themes(message):
     for theme in theme_list:
         text += f"{theme}\n"
     bot.send_message(message.chat.id, text)
-
 
 
 @bot.message_handler(func=lambda message: True)
