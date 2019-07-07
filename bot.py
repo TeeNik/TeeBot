@@ -58,22 +58,26 @@ def handle_add_meme(message):
     if len(params) == 2 and params[1] in theme_list:
         global reason_to_answer
         reason_to_answer = AnswerReason.ADD_FILE
-        bot.send_message(message.chat.id, reason_to_answer.ADD_FILE_TEXT)
+        send_reply_photo(message.chat.id)
+    else:
+        bot.send_message(message.chat.id, "Wrong arguments")
 
 
-@bot.message_handler(content_types=['photo'])
-def handle_docs_photo(message):
+@bot.message_handler(content_types=['document'])
+def handle_docs_file(message):
     try:
         chat_id = message.chat.id
         bot.send_message(chat_id, message)
 
-        file_info = bot.get_file(message.photo[len(message.photo) - 1].file_id)
+        file_info = bot.get_file(message.document.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
-        src = f'{files_path}{file_info.file_path}'
+        src = f'{files_path}{message.document.file_name}'
         with open(src, 'wb') as new_file:
             new_file.write(downloaded_file)
 
         bot.send_message(chat_id, "Картинка сохранена")
+        params = get_command_params(message.reply_to_message);
+        botDB.save_meme(file_info.file_path, params[1])
     except Exception as e:
         bot.send_message(chat_id, e)
 
@@ -92,7 +96,6 @@ def echo_all(message):
     print(message)
     if message.reply_to_message is not None:
         params = get_command_params(message.reply_to_message)
-        
         send_reply_photo()
 
 

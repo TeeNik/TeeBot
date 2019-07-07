@@ -28,3 +28,6 @@ class TeeBotDB:
         self.Cursor.execute(f"select filename FROM memes WHERE theme = '{theme}' ORDER BY RAND() LIMIT 1;")
         return self.Cursor.fetchall()[0][0]
 
+    def save_meme(self, filename, theme):
+        self.Cursor.execute(f"INSERT INTO `TeeBotDB`.`memes` (`filename`, `theme`) VALUES ('{filename}', '{theme}');")
+
