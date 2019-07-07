@@ -3,8 +3,7 @@ import telebot
 import sys
 import db
 from answer_reason import AnswerReason
-from answer_reason import HELP_TEXT
-
+import answer_reason
 
 token = sys.argv[1];
 bot = telebot.TeleBot(token)
@@ -13,7 +12,7 @@ updates_url = f"https://api.telegram.org/bot{token}/getUpdates"
 files_path = '/TeeBot/pics/'
 
 botDB = db.TeeBotDB()
-answer_reason = AnswerReason.NONE
+reason_to_answer = AnswerReason.NONE
 theme_list = botDB.get_themes_list()
 
 
@@ -24,7 +23,12 @@ def get_updates_json(request):
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    bot.send_message(message.chat.id, HELP_TEXT)
+    bot.send_message(message.chat.id, answer_reason.HELP_TEXT)
+
+
+def get_command_params(message):
+    text = str(message.json['text'])
+    return text.split(" ")
 
 
 @bot.message_handler(commands=["meme"])
@@ -32,8 +36,7 @@ def send_meme(message):
     try:
         chat_id = message.chat.id
 
-        text = str(message.json['text'])
-        params = text.split(" ")
+        params = get_command_params(message)
         if len(params) > 1 and params[1] in theme_list:
             filename = botDB.get_meme_by_theme(params[1])
         else:
@@ -43,6 +46,19 @@ def send_meme(message):
     except Exception as e:
         bot.send_message(chat_id, "Эксепшон!!!!\n")
         bot.send_message(chat_id, e)
+
+
+@bot.message_handler(commands=['add_meme'])
+def handle_add_meme(message):
+    if message.chat.type == 'group':
+        bot.send_message(message.chat.id, answer_reason.NOT_ABLE_IN_GROUP)
+        return
+
+    params = get_command_params(message)
+    if len(params) == 2 and params[1] in theme_list:
+        global reason_to_answer
+        reason_to_answer = AnswerReason.ADD_FILE
+        bot.send_message(message.chat.id, reason_to_answer.ADD_FILE_TEXT)
 
 
 @bot.message_handler(content_types=['photo'])
@@ -74,7 +90,15 @@ def handle_show_themes(message):
 def echo_all(message):
     print("\n")
     print(message)
-    pass
+    if message.reply_to_message is not None:
+        params = get_command_params(message.reply_to_message)
+        
+        send_reply_photo()
+
+
+def send_reply_photo(chat_id):
+    markup = telebot.types.ForceReply(selective=False)
+    bot.send_message(chat_id, answer_reason.ADD_FILE_TEXT, reply_markup=markup)
 
 
 bot.polling()
