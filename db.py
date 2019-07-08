@@ -30,4 +30,5 @@ class TeeBotDB:
 
     def save_meme(self, filename, theme):
         self.Cursor.execute(f"INSERT INTO `TeeBotDB`.`memes` (`filename`, `theme`) VALUES ('{filename}', '{theme}');")
+        self.DB.commit()
 
